@@ -1,11 +1,10 @@
 pipeline {
     agent any
-    
-   
-    
+
     environment {
-        DOCKER_IMAGE = 'irfan170/development:latest'
-        DOCKER_REGISTRY = 'https://index.docker.io/v1/' 
+        DEV_DOCKER_IMAGE = 'irfan170/development:latest'
+        PROD_DOCKER_IMAGE = 'irfan170/production:latest'
+        DOCKER_REGISTRY = 'https://index.docker.io/v1/'
     }
 
     stages {
@@ -16,17 +15,25 @@ pipeline {
             }
         }
 
-         stage('build') {
-            steps {
-                sh 'docker build -t $DOCKER_IMAGE .'
-            }
-        }
-         
-         stage('Login to Docker Hub') {
+        stage('Build') {
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: 'docker', 
-                                                     usernameVariable: 'DOCKER_USER', 
+                    if (env.BRANCH_NAME == 'dev') {
+                        // Build the Docker image for the dev branch
+                        dockerImage = docker.build("${DEV_DOCKER_IMAGE}")
+                    } else if (env.BRANCH_NAME == 'main') {
+                        // Build the Docker image for the main branch
+                        dockerImage = docker.build("${PROD_DOCKER_IMAGE}")
+                    }
+                }
+            }
+        }
+
+        stage('Login to Docker Hub') {
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'docker',
+                                                     usernameVariable: 'DOCKER_USER',
                                                      passwordVariable: 'DOCKER_PASS')]) {
                         sh """
                         echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin $DOCKER_REGISTRY
@@ -35,10 +42,29 @@ pipeline {
                 }
             }
         }
-        stage('push') {
+
+        stage('Push') {
             steps {
-                sh 'docker push $DOCKER_IMAGE'
+                script {
+                    if (env.BRANCH_NAME == 'dev') {
+                        // Push the Docker image to the dev repository
+                        dockerImage.push("${env.BRANCH_NAME}-${env.BUILD_ID}")
+                        dockerImage.push("latest")
+                    } else if (env.BRANCH_NAME == 'main') {
+                        // Push the Docker image to the private repository
+                        dockerImage.push("${env.BRANCH_NAME}-${env.BUILD_ID}")
+                        dockerImage.push("latest")
+                    }
+                }
             }
         }
     }
+
+    post {
+        always {
+            // Clean the workspace after the build
+            cleanWs()
+        }
+    }
 }
+
