@@ -1,6 +1,6 @@
 FROM node:14 as build
 
-# Set the working directory
+# Sijijet the working directory
 WORKDIR /app
 
 # Copy package.json and package-lock.json
