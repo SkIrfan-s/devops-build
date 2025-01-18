@@ -1,0 +1,25 @@
+# Ignore node_modules directory
+node_modules
+
+# Ignore npm debug log
+npm-debug.log
+
+# Ignore build output
+build
+
+# Ignore dotenv files
+.env
+.env.local
+.env.production
+.env.*.local
+
+# Ignore Dockerfile and docker-compose files
+Dockerfile
+docker-compose.yml
+
+# Ignore any .DS_Store files (macOS)
+.DS_Store
+
+# Ignore any log files
+*.log
+
