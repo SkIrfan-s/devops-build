@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     environment {
-        DEV_DOCKER_IMAGE = 'irfan170/development:latest'
-        PROD_DOCKER_IMAGE = 'irfan170/production:latest'
+        DEV_DOCKER_IMAGE = 'afridi0313/dev'
+        PROD_DOCKER_IMAGE = 'afridi0313/prod'
         DOCKER_REGISTRY = 'https://index.docker.io/v1/'
     }
 
