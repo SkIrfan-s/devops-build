@@ -1,22 +1,18 @@
 FROM node:14 as build
+<<<<<<< HEAD
 
 # Set the working directory
+=======
+>>>>>>> e2e5cc5 (commit1)
 WORKDIR /app
-
-# Copy package.json and package-lock.json
 COPY package*.json ./
-
-# Install dependencies
 RUN npm install
-
-# Copy the rest of the application code
 COPY . .
 
-# Build the application
-
-
-# Stage 2: Serve the application with Apache HTTP Server
-FROM httpd:alpine
-COPY . /usr/local/apache2/htdocs/
+# Stage 2: Serve the application with Nginx
+FROM nginx:alpine
+RUN rm -rf /usr/share/nginx/html/*
+COPY . /usr/share/nginx/html/
 EXPOSE 80
-CMD ["httpd-foreground"]
+CMD ["nginx", "-g", "daemon off;"]
+
